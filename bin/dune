@@ -1,0 +1,4 @@
+(executable
+ (public_name streams)
+ (name main)
+ (libraries streams))
