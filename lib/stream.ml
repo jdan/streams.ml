@@ -12,6 +12,9 @@ let tail = function
 
 let%test _ = 1 = head (tail ones)
 
+let rec constant k =
+  Stream (k, fun _ -> constant k)
+
 let nums =
   let rec inner n =
     Stream (n, fun _ -> inner (n+1))
@@ -26,6 +29,7 @@ let rec take n s = match n with
   | n -> head s :: take (n - 1) (tail s)
 
 let%test _ = [0;1;2;3] = take 4 nums
+let%test _ = [7;7;7;7;7] = take 5 (constant 7)
 
 let rec drop n s = match n with
   | 0 -> s
@@ -59,6 +63,17 @@ let rec filter f s =
 
 let%test _ =
   [1;3;5;7;9] = (filter (fun n -> n mod 2 = 1) nums |> take 5)
+
+let rec reduce f init s =
+  let acc = f init (head s)
+  in
+  Stream
+    ( acc
+    , fun _ -> reduce f acc (tail s)
+    )
+
+let%test _ =
+  [0;1;3;6;10] = (reduce (+) 0 nums |> take 5)
 
 let rec iterate f init =
   Stream (init, fun _ -> iterate f (f init))
