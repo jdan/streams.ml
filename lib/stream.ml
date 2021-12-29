@@ -66,10 +66,9 @@ let fib =
 let%test _ = [0;1;1;2;3;5;8;13;21] = take 9 fib
 
 let collatz n =
-  generate 
-    (
-      fun n -> 
-        if n mod 2 = 0 
+  generate
+    ( fun n ->
+        if n mod 2 = 0
         then n / 2
         else 3 * n + 1
     )
@@ -78,3 +77,36 @@ let collatz n =
 let%test _ =
   [7;22;11;34;17;52;26;13;40;20;10;5;16;8;4;2;1]
   = take 17 (collatz 7)
+
+let cycle ls =
+  let rec inner ls = function
+    | [] -> inner ls ls
+    | x::xs -> Stream (x, fun _ -> inner ls xs)
+  in inner ls ls
+
+let%test _ =
+  [1;2;3;1;2;3;1;2;3;1]
+  = take 10 (cycle [1;2;3])
+
+let rec interleave a b =
+  Stream
+    ( head a
+    , fun _ ->
+      Stream
+        ( head b
+        , fun _ ->
+          interleave (tail a) (tail b)
+        )
+    )
+
+let%test _ =
+  [ 0; 0
+  ; 1; 1
+  ; 2; 1
+  ; 3; 2
+  ; 4; 3
+  ; 5; 5
+  ; 6; 8
+  ; 7; 13
+  ] =
+  (interleave nums fib |> take 16)
