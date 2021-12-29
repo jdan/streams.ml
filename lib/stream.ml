@@ -60,21 +60,21 @@ let rec filter f s =
 let%test _ =
   [1;3;5;7;9] = (filter (fun n -> n mod 2 = 1) nums |> take 5)
 
-let rec generate f init =
-  Stream (init, fun _ -> generate f (f init))
+let rec iterate f init =
+  Stream (init, fun _ -> iterate f (f init))
 
-let%test _ = take 10 ones = take 10 (generate (fun x -> x) 1)
-let%test _ = take 10 nums = take 10 (generate ((+) 1) 0)
+let%test _ = take 10 ones = take 10 (iterate (fun x -> x) 1)
+let%test _ = take 10 nums = take 10 (iterate ((+) 1) 0)
 
 let fib =
   let pairs =
-    generate (fun (a, b) -> (b, a + b)) (0, 1)
+    iterate (fun (a, b) -> (b, a + b)) (0, 1)
   in map (fun (a, _) -> a) pairs
 
 let%test _ = [0;1;1;2;3;5;8;13;21] = take 9 fib
 
 let collatz n =
-  generate
+  iterate
     ( fun n ->
         if n mod 2 = 0
         then n / 2
