@@ -52,6 +52,14 @@ let fizzbuzz =
 
 let%test _ = ["1";"2";"Fizz";"4";"Buzz";"Fizz";"7"] = take 7 fizzbuzz
 
+let rec filter f s =
+  if f (head s)
+  then Stream (head s, fun _ -> filter f (tail s))
+  else filter f (tail s)
+
+let%test _ =
+  [1;3;5;7;9] = (filter (fun n -> n mod 2 = 1) nums |> take 5)
+
 let rec generate f init =
   Stream (init, fun _ -> generate f (f init))
 
