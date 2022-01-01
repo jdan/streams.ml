@@ -133,3 +133,16 @@ let%test _ =
   ; 7; 13
   ] =
   (interleave nums fib |> take 16)
+
+let primes =
+  let rec sieve st =
+    Stream
+      ( head st
+      , fun _ ->
+        tail st
+        |> filter (fun n -> n mod (head st) <> 0)
+        |> sieve
+      )
+  in sieve (map ((+) 2) nums)
+
+let%test _ = [2;3;5;7;11;13] = take 6 primes
